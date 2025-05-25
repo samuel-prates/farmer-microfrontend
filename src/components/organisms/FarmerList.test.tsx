@@ -1,55 +1,79 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import { FarmerList } from './FarmerList';
+import { Provider } from 'react-redux';
+import configureMockStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 
-const mockStore = configureStore([]);
+// Mock das dependências
+jest.mock('../templates/EditFarmerModal', () => ({
+  EditFarmerModal: ({ farmer, onSave, onClose }: any) => (
+    <div data-testid="edit-modal">
+      <button onClick={() => onSave(farmer)}>Salvar</button>
+      <button onClick={onClose}>Fechar</button>
+    </div>
+  ),
+}));
+jest.mock('../templates/CreateFarmerModal', () => ({
+  CreateFarmerModal: ({ onSave, onClose }: any) => (
+    <div data-testid="create-modal">
+      <button onClick={() => onSave({ farmerName: 'Novo', federalIdentification: '999', farms: [] })}>Salvar</button>
+      <button onClick={onClose}>Fechar</button>
+    </div>
+  ),
+}));
+
+const mockStore = configureMockStore({ middleware: [thunk] });
+
+const initialState = {
+  farmers: {
+    farmers: [
+      {
+        farmerName: 'João',
+        federalIdentification: '123',
+        farms: [{ farmName: 'Fazenda 1' }, { farmName: 'Fazenda 2' }],
+      },
+    ],
+    status: 'succeeded',
+    error: null,
+  },
+};
 
 describe('FarmerList', () => {
-  it('renders loading state', () => {
-    const store = mockStore({
-      farmers: { farmers: [], status: 'loading', error: null },
-    });
+  it('renders table with farmers', () => {
+    const store = mockStore(initialState);
     render(
       <Provider store={store}>
         <FarmerList />
       </Provider>
     );
-
-    expect(screen.getByText(/Loading/i)).toBeInTheDocument();
+    expect(screen.getByText('João')).toBeInTheDocument();
+    expect(screen.getByText('123')).toBeInTheDocument();
+    expect(screen.getByText('Fazenda 1, Fazenda 2')).toBeInTheDocument();
+    expect(screen.getByText('Editar')).toBeInTheDocument();
+    expect(screen.getByText('Deletar')).toBeInTheDocument();
   });
 
-  it('renders error state', () => {
-    const store = mockStore({
-      farmers: { farmers: [], status: 'failed', error: 'Error message' },
-    });
+  it('opens and closes EditFarmerModal', () => {
+    const store = mockStore(initialState);
     render(
       <Provider store={store}>
         <FarmerList />
       </Provider>
     );
-    expect(screen.getByText(/Error: Error message/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Editar'));
+    expect(screen.getByTestId('edit-modal')).toBeInTheDocument();
   });
 
-  it('renders list of farmers', () => {
-    const store = mockStore({
-      farmers: {
-        farmers: [
-          { farmerName: 'Farmer 1', farms:[{farmName: 'Farm 1'}] },
-          { farmerName: 'Farmer 2', farms:[{farmName: 'Farm 2'}] },
-        ],
-        status: 'succeeded',
-        error: null,
-      },
-    });
+  it('opens and closes CreateFarmerModal', () => {
+    const store = mockStore(initialState);
     render(
       <Provider store={store}>
         <FarmerList />
       </Provider>
     );
-    expect(screen.getByText('Farm 1')).toBeInTheDocument();
-    expect(screen.getByText('Farm 2')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Novo Fazendeiro'));
+    expect(screen.getByTestId('create-modal')).toBeInTheDocument();
   });
 });

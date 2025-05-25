@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-export const fetchFarmer = createAsyncThunk('farmer/fetchFarmer', async () => {
+export const fetchFarmer = createAsyncThunk('farmers/fetchAll', async () => {
   const response = await axios.get('http://localhost:3000/farmer');
   return response.data;
 });

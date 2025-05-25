@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchFarmer } from '../features/farmer/farmersSlice';
 import { FarmerList } from '../components/organisms/FarmerList';
+import Layout from '../components/templates/Layout';
 
 export const FarmersPage = () => {
   const dispatch = useDispatch();
@@ -12,9 +13,11 @@ export const FarmersPage = () => {
   }, [dispatch]);
 
   return (
-    <main>
-      <h1>Fazendeiros Registrados</h1>
-      <FarmerList />
-    </main>
+    <>
+      <Layout>
+          <h1>Fazendeiros Registrados</h1>
+          <FarmerList />
+      </Layout>
+    </>
   );
 };

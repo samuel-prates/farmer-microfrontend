@@ -1,56 +1,17 @@
 import React from 'react';
-import styled from 'styled-components';
+import { Farmer } from '../../types/farmer';
+import { Farm } from '../../types/farm';
+import { Harvest } from '../../types/harvest';
+import { Card } from '../../styles/theme';
 
-const Card = styled.div`
-  border: 1px solid #eee;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-  background: #fafafa;
-`;
 
-type HavestsDetailsProps = {
-  harvest: {
-    year: number;
-    culture: string;
-  }
-};
-
-type FarmDetailsProps = {
-  farm: {
-    farmName: string;
-    totalArea: number;
-    arableArea: number;
-    vegetationArea: number;
-    harvests: Array<{
-      year: number;
-      culture: string;
-    }>;
-  };
-};
-
-type Farmer = {
-  federalIdentification: string;
-  farmerName: number;
-  farms: Array<{
-    farmName: string;
-    totalArea: number;
-    arableArea: number;
-    vegetationArea: number;
-    harvests: Array<{
-      year: number;
-      culture: string;
-    }>;
-  }>;
-};
-
-const HavestsDetails: React.FC<HavestsDetailsProps> = ({ harvest }) => (
+const HavestsDetails: React.FC<{ harvest: Harvest }> = ({ harvest }) => (
   <li style={{ marginLeft: 16, marginBottom: 8 }}>
     <span style={{ fontWeight: 'bold' }}>{harvest.year}</span> - {harvest.culture}
   </li>
 );
 
-const FarmDetails: React.FC<FarmDetailsProps> = ({ farm }) => (
+const FarmDetails: React.FC<{ farm: Farm }> = ({ farm }) => (
   <div style={{ marginLeft: 16, marginBottom: 8 }}>
     <strong>{farm.farmName}</strong>
     <div>Área total: {farm.totalArea}</div>
