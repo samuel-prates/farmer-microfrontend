@@ -1,7 +1,6 @@
-// @ts-ignore
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../app/store';
+import { RootState, AppDispatch } from '../app/store';
 import { fetchFarmStates, fetchHarvestCultures, fetchAreas } from '../features/dashboard/dashboardSlice';
 import Layout from '../components/templates/Layout';
 import { Pie } from 'react-chartjs-2';
@@ -14,30 +13,34 @@ import {
   StatValue,
   StatLabel,
   ChartContainer,
-  ChartPlaceholder
+  ChartPlaceholder,
+  ErrorMessage,
+  StatValueSkeleton,
+  StatLabelSkeleton,
+  ChartSkeleton
 } from '../styles/DashboardStyles';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const DashboardPage = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const { farmStates, harvestCultures, areas, totalFarms, status } = useSelector(
     (state: RootState) => state.dashboard
   );
 
   useEffect(() => {
-    dispatch(fetchFarmStates() as any);
-    dispatch(fetchHarvestCultures() as any);
-    dispatch(fetchAreas() as any);
+    dispatch(fetchFarmStates());
+    dispatch(fetchHarvestCultures());
+    dispatch(fetchAreas());
   }, [dispatch]);
 
   const totalArea = areas.totalArableArea + areas.totalVegetationArea;
 
   // Loading state for charts
-  const renderLoading = () => (
+  const renderChartSkeleton = () => (
     <ChartPlaceholder>
-      Loading...
+      <ChartSkeleton />
     </ChartPlaceholder>
   );
 
@@ -45,24 +48,38 @@ export const DashboardPage = () => {
     <Layout>
       <h1>Dashboard</h1>
 
+      {status === 'failed' && (
+        <ErrorMessage>
+          Erro ao carregar dados do dashboard. Por favor, tente novamente mais tarde.
+        </ErrorMessage>
+      )}
+
       <DashboardContainer>
         {/* Total Farms Card */}
         <StatCard>
           <StatLabel>Total de Fazendas Cadastradas</StatLabel>
-          <StatValue>{status === 'loading' ? '...' : totalFarms}</StatValue>
+          {status === 'loading' ? (
+            <StatValueSkeleton />
+          ) : (
+            <StatValue>{totalFarms}</StatValue>
+          )}
         </StatCard>
 
         {/* Total Area Card */}
         <StatCard>
           <StatLabel>Total de Hectares Registrados</StatLabel>
-          <StatValue>{status === 'loading' ? '...' : `${totalArea.toFixed(2)} ha`}</StatValue>
+          {status === 'loading' ? (
+            <StatValueSkeleton />
+          ) : (
+            <StatValue>{`${totalArea.toFixed(2)} ha`}</StatValue>
+          )}
         </StatCard>
 
         {/* State Distribution Chart */}
         <ChartCard>
           <h3>Distribuição por Estado</h3>
           <ChartContainer>
-            {status === 'loading' ? renderLoading() : (
+            {status === 'loading' ? renderChartSkeleton() : (
               <Pie
                 data={{
                   labels: Object.keys(farmStates),
@@ -82,7 +99,7 @@ export const DashboardPage = () => {
         <ChartCard>
           <h3>Distribuição por Cultura Plantada</h3>
           <ChartContainer>
-            {status === 'loading' ? renderLoading() : (
+            {status === 'loading' ? renderChartSkeleton() : (
               <Pie
                 data={{
                   labels: Object.keys(harvestCultures),
@@ -102,7 +119,7 @@ export const DashboardPage = () => {
         <ChartCard>
           <h3>Uso do Solo</h3>
           <ChartContainer>
-            {status === 'loading' ? renderLoading() : (
+            {status === 'loading' ? renderChartSkeleton() : (
               <Pie
                 data={{
                   labels: ['Área Agricultável', 'Vegetação'],

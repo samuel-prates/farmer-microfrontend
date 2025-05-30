@@ -37,6 +37,12 @@ const initialState = {
     ],
     status: 'succeeded',
     error: null,
+    pagination: {
+      page: 1,
+      limit: 10,
+      total: 1,
+      totalPages: 1
+    }
   },
 };
 
@@ -75,5 +81,38 @@ describe('FarmerList', () => {
     );
     fireEvent.click(screen.getByText('Novo Fazendeiro'));
     expect(screen.getByTestId('create-modal')).toBeInTheDocument();
+  });
+
+  it('renders pagination controls', () => {
+    const store = mockStore({
+      farmers: {
+        ...initialState.farmers,
+        pagination: {
+          page: 2,
+          limit: 10,
+          total: 25,
+          totalPages: 3
+        }
+      }
+    });
+    render(
+      <Provider store={store}>
+        <FarmerList />
+      </Provider>
+    );
+
+    // Check if pagination controls are rendered
+    expect(screen.getByText('Anterior')).toBeInTheDocument();
+    expect(screen.getByText('Próxima')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+
+    // Check if current page is highlighted
+    const page2Button = screen.getByText('2');
+    expect(page2Button).toHaveStyle('border: 2px solid #1565c0');
+
+    // Check if pagination info is displayed
+    expect(screen.getByText('Mostrando 1 de 25 fazendeiros | Página 2 de 3')).toBeInTheDocument();
   });
 });

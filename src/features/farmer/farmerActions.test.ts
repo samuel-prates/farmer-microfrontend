@@ -47,17 +47,24 @@ describe('farmerActions', () => {
     });
   });
 
-  it('deleteFarmer dispatches callback on success', async () => {
+  it('deleteFarmer dispatches success action on success', async () => {
     mockedAxios.delete.mockResolvedValueOnce({});
-    const callback = jest.fn(() => ({ type: 'farmers/fetchFarmer' }));
-    await deleteFarmer(1, callback)(dispatch);
-    expect(dispatch).toHaveBeenCalledWith({ type: 'farmers/fetchFarmer' });
+    await deleteFarmer(1)(dispatch);
+    expect(dispatch).toHaveBeenCalledWith({ 
+      type: 'farmers/deleteFarmerSuccess',
+      payload: 1
+    });
   });
 
-  it('deleteFarmer alerts on error', async () => {
-    mockedAxios.delete.mockRejectedValueOnce(new Error('fail'));
+  it('deleteFarmer alerts and dispatches error action on failure', async () => {
+    const error = new Error('fail');
+    mockedAxios.delete.mockRejectedValueOnce(error);
     window.alert = jest.fn();
-    await deleteFarmer(1, jest.fn())(dispatch);
+    await deleteFarmer(1)(dispatch);
     expect(window.alert).toHaveBeenCalledWith('Erro ao deletar fazendeiro.');
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'farmers/deleteFarmerError',
+      payload: error
+    });
   });
 });

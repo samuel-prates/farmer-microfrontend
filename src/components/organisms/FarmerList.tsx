@@ -5,15 +5,19 @@ import { BlueButton, RedButton, TdEnd, TdMiddle, ThEnd, ThMiddle } from '../../s
 import { Farmer } from '../../types/farmer';
 import { EditFarmerModal } from '../templates/EditFarmerModal';
 import { createFarmer, deleteFarmer, updateFarmer } from '../../features/farmer/farmerActions';
-import { fetchFarmer } from '../../features/farmer/farmersSlice';
+import { fetchFarmer, setPage } from '../../features/farmer/farmersSlice';
 import { CreateFarmerModal } from '../templates/CreateFarmerModal';
 
 export const FarmerList = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { farmers, status, error } = useSelector((state: RootState) => state.farmers);
+  const { farmers, status, error, pagination } = useSelector((state: RootState) => state.farmers);
   const dispatch: AppDispatch = useDispatch();
 
   const [editingFarmer, setEditingFarmer] = useState<Farmer | null>(null);
+
+  const handlePageChange = (newPage: number) => {
+    dispatch(setPage(newPage));
+  };
 
   const handleEdit = (farmer: Farmer) => {
     setEditingFarmer(farmer);
@@ -22,24 +26,35 @@ export const FarmerList = () => {
   const handleSave = async (updatedFarmer: Farmer) => {
     await dispatch(updateFarmer(updatedFarmer));
     setEditingFarmer(null);
-    dispatch(fetchFarmer());
+    dispatch(fetchFarmer({ page: pagination.page, limit: pagination.limit }));
   };
 
   const handleCreateSave = async (updatedFarmer: Farmer) => {
     await dispatch(createFarmer(updatedFarmer));
-    setEditingFarmer(null);
-    dispatch(fetchFarmer());
+    setShowCreateModal(false);
+    // After creating a new farmer, go to the first page to see it
+    dispatch(setPage(1));
+    dispatch(fetchFarmer({ page: 1, limit: pagination.limit }));
   };
 
   const handleClose = () => {
     setEditingFarmer(null);
-    dispatch(fetchFarmer());
+    setShowCreateModal(false);
+    dispatch(fetchFarmer({ page: pagination.page, limit: pagination.limit }));
   }
 
   const handleDelete = async (farmer: Farmer) => {
     const confirmDelete = window.confirm(`Deseja realmente deletar o fazendeiro "${farmer.farmerName}"?`);
     if (!confirmDelete) return;
-    await dispatch(deleteFarmer(farmer.id, fetchFarmer));
+    await dispatch(deleteFarmer(farmer.id));
+
+    // If we're on the last page and there's only one item, go to the previous page
+    if (pagination.page > 1 && farmers.length === 1) {
+      dispatch(setPage(pagination.page - 1));
+      dispatch(fetchFarmer({ page: pagination.page - 1, limit: pagination.limit }));
+    } else {
+      dispatch(fetchFarmer({ page: pagination.page, limit: pagination.limit }));
+    }
   };
 
   if (status === 'loading') return <div>Loading...</div>;
@@ -83,6 +98,46 @@ export const FarmerList = () => {
           ))}
         </tbody>
       </table>}
+
+      {/* Pagination Controls */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20, gap: 10 }}>
+        <BlueButton 
+          onClick={() => handlePageChange(pagination.page - 1)} 
+          disabled={pagination.page <= 1}
+        >
+          Anterior
+        </BlueButton>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(page => (
+            <button
+              key={page}
+              onClick={() => handlePageChange(page)}
+              style={{
+                padding: '5px 10px',
+                border: pagination.page === page ? '2px solid #1565c0' : '1px solid #ccc',
+                borderRadius: '4px',
+                background: pagination.page === page ? '#e3f2fd' : 'white',
+                cursor: 'pointer'
+              }}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+
+        <BlueButton 
+          onClick={() => handlePageChange(pagination.page + 1)} 
+          disabled={pagination.page >= pagination.totalPages}
+        >
+          Próxima
+        </BlueButton>
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: 10, color: '#666' }}>
+        Mostrando {farmers.length} de {pagination.total} fazendeiros | Página {pagination.page} de {pagination.totalPages}
+      </div>
+
       {editingFarmer && (
         <EditFarmerModal
           farmer={editingFarmer}

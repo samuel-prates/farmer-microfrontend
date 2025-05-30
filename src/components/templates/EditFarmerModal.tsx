@@ -20,7 +20,7 @@ export const EditFarmerModal: React.FC<EditFarmerModalProps> = ({ farmer, onSave
   };
 
   const handleAddFarm = () => {
-    setFarms([...farms, { farmName: '', totalArea: 0, arableArea: 0, vegetationArea: 0, harvests: [] }]);
+    setFarms([...farms, { farmName: '', city: '', state: '', totalArea: 0, arableArea: 0, vegetationArea: 0, harvests: [] }]);
   };
 
   const handleRemoveFarm = (index: number) => {
@@ -91,6 +91,22 @@ export const EditFarmerModal: React.FC<EditFarmerModalProps> = ({ farmer, onSave
                   placeholder="Nome da fazenda"
                   value={farm.farmName}
                   onChange={e => handleFarmChange(farmIdx, 'farmName', e.target.value)}
+                  style={{ marginRight: 8, marginBottom: 4 }}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Cidade"
+                  value={farm.city}
+                  onChange={e=> handleFarmChange(farmIdx, 'city', e.target.value)}
+                  style={{ marginRight: 8, marginBottom: 4 }}
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Estado"
+                  value={farm.state}
+                  onChange={e=> handleFarmChange(farmIdx, 'state', e.target.value)}
                   style={{ marginRight: 8, marginBottom: 4 }}
                   required
                 />

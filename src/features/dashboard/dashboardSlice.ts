@@ -39,17 +39,17 @@ const initialState: DashboardState = {
 
 // Async thunks for fetching dashboard data
 export const fetchFarmStates = createAsyncThunk('dashboard/fetchFarmStates', async () => {
-  const response = await axios.get('http://localhost:3000/dashboard/farm-states');
+  const response = await axios.get('http://localhost:3000/api/dashboard/farm-states');
   return response.data;
 });
 
 export const fetchHarvestCultures = createAsyncThunk('dashboard/fetchHarvestCultures', async () => {
-  const response = await axios.get('http://localhost:3000/dashboard/harvest-cultures');
+  const response = await axios.get('http://localhost:3000/api/dashboard/harvest-cultures');
   return response.data;
 });
 
 export const fetchAreas = createAsyncThunk('dashboard/fetchAreas', async () => {
-  const response = await axios.get('http://localhost:3000/dashboard/areas');
+  const response = await axios.get('http://localhost:3000/api/dashboard/areas');
   return response.data;
 });
 
@@ -73,7 +73,7 @@ const dashboardSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch farm states';
       })
-      
+
       // Harvest Cultures
       .addCase(fetchHarvestCultures.pending, (state) => {
         state.status = 'loading';
@@ -86,7 +86,7 @@ const dashboardSlice = createSlice({
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch harvest cultures';
       })
-      
+
       // Areas
       .addCase(fetchAreas.pending, (state) => {
         state.status = 'loading';
