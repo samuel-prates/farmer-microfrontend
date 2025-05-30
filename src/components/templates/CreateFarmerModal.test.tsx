@@ -28,16 +28,20 @@ describe('CreateFarmerModal', () => {
     fireEvent.change(screen.getByLabelText(/Documento:/i), { target: { value: '12345678900' } });
     fireEvent.click(screen.getByText(/Adicionar Fazenda/i));
     fireEvent.change(screen.getAllByPlaceholderText(/Nome da fazenda/i)[0], { target: { value: 'Fazenda Teste' } });
+    fireEvent.change(screen.getAllByPlaceholderText(/Cidade/i)[0], { target: { value: 'Cidade Teste' } });
+    fireEvent.change(screen.getAllByPlaceholderText(/Estado/i)[0], { target: { value: 'Estado Teste' } });
     fireEvent.change(screen.getAllByPlaceholderText(/Área total/i)[0], { target: { value: '100' } });
     fireEvent.change(screen.getAllByPlaceholderText(/Área agricultável/i)[0], { target: { value: '80' } });
     fireEvent.change(screen.getAllByPlaceholderText(/Área de vegetação/i)[0], { target: { value: '20' } });
-    fireEvent.click(screen.getByText(/Salvar/i));
+    fireEvent.submit(screen.getByText(/Salvar/i).closest('form')!);
     expect(onSave).toHaveBeenCalledWith({
       farmerName: 'Novo Fazendeiro',
       federalIdentification: '12345678900',
       farms: [
         {
           farmName: 'Fazenda Teste',
+          city: 'Cidade Teste',
+          state: 'Estado Teste',
           totalArea: 100,
           arableArea: 80,
           vegetationArea: 20,

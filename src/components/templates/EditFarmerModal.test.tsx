@@ -44,7 +44,7 @@ describe('EditFarmerModal', () => {
     const onSave = jest.fn();
     render(<EditFarmerModal farmer={mockFarmer} onSave={onSave} onClose={jest.fn()} />);
     fireEvent.change(screen.getByLabelText(/Nome:/i), { target: { value: 'Maria' } });
-    fireEvent.click(screen.getByText(/Salvar/i));
+    fireEvent.submit(screen.getByText(/Salvar/i).closest('form')!);
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ farmerName: 'Maria' }));
   });
 

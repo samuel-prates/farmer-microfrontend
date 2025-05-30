@@ -127,7 +127,7 @@ export const FarmerList = () => {
         </div>
 
         <BlueButton 
-          onClick={() => handlePageChange(pagination.page + 1)} 
+          onClick={() => handlePageChange(parseInt(pagination.page) + 1)}
           disabled={pagination.page >= pagination.totalPages}
         >
           Próxima

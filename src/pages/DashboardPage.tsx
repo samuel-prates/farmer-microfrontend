@@ -45,7 +45,7 @@ export const DashboardPage = () => {
   );
 
   return (
-    <Layout>
+    <Layout children={undefined}>
       <h1>Dashboard</h1>
 
       {status === 'failed' && (
